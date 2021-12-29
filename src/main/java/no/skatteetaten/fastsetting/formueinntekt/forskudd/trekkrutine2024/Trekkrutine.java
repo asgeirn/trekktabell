@@ -71,7 +71,7 @@ public class Trekkrutine {
     private static long beregnTrekk(Tabellnummer tabellnummer, Periode periode, double sumSkatt) {
         double trekkMedDesimaler = sumSkatt / periode.getTrekkPeriode(tabellnummer);
 
-        return tabellnummer.tabelltype == Tabelltype.SJØ ?
+        return tabellnummer.tabelltype == Tabelltype.SJO ?
                 (long) Math.floor(trekkMedDesimaler) :
                 Math.round(trekkMedDesimaler);
     }
