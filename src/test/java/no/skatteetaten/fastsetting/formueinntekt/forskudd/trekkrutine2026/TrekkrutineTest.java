@@ -234,7 +234,7 @@ public class TrekkrutineTest {
         return true;
     }
     private boolean aktuellPeriode(Tabellnummer tabellnummer, Periode periode) {
-        if (tabellnummer.tabelltype == Tabelltype.SJØ) {
+        if (tabellnummer.tabelltype == Tabelltype.SJO) {
             return periode == Periode.PERIODE_1_MAANED || periode == Periode.PERIODE_14_DAGER ||
                 periode == Periode.PERIODE_1_UKE;
         }

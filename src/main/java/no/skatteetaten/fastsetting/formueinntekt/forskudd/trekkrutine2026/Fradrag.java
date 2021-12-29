@@ -3,7 +3,7 @@ package no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine2026;
 public class Fradrag {
 
     static long beregnMinsteFradrag(Tabellnummer tabellnummer, long personInntektAar) {
-        if (tabellnummer.tabelltype == Tabelltype.SJØ)
+        if (tabellnummer.tabelltype == Tabelltype.SJO)
             return beregnMinstefradragSjo(personInntektAar);
 
         return beregnMinstefradragVanlig(personInntektAar);
@@ -55,7 +55,7 @@ public class Fradrag {
     }
 
     static long beregnSjoFradrag(Tabellnummer tabellnummer, long personInntektAar) {
-        if (tabellnummer.tabelltype != Tabelltype.SJØ)
+        if (tabellnummer.tabelltype != Tabelltype.SJO)
             return 0L;
 
         long sjoFradrag = Math.round((personInntektAar * Konstanter.SJO_PROSENT) / 100);
