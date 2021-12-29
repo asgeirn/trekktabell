@@ -269,7 +269,7 @@ public class TrekkrutineTest {
         if (tabellnummer.tabelltype == Tabelltype.PENSJONIST) {
             return periode == Periode.PERIODE_1_MAANED;
         }
-        if (tabellnummer.tabelltype == Tabelltype.SJØ) {
+        if (tabellnummer.tabelltype == Tabelltype.SJO) {
             return periode == Periode.PERIODE_1_MAANED || periode == Periode.PERIODE_14_DAGER ||
                 periode == Periode.PERIODE_1_UKE;
         }
