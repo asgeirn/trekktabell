@@ -16,9 +16,9 @@ public class Trekk implements HttpFunction {
     public void service(HttpRequest req, HttpResponse res) throws Exception {
         long amount = Long.parseLong(req.getFirstQueryParameter("amount").orElse("0"));
         long trekk = Trekkrutine.beregnTabelltrekk(Tabellnummer.TABELL_7109, Periode.PERIODE_1_MAANED, amount);
-        res.setContentType("application/json");
+        res.setContentType("text/plain");
         try (PrintWriter pw = new PrintWriter(res.getWriter())) {
-            pw.printf("{ \"trekk\": %d }", trekk);
+            pw.println(trekk);
         }
     }
 
