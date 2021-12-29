@@ -4,7 +4,7 @@ public enum Tabelltype {
     VANLIG,
     PENSJONIST,
     STANDARDFRADRAG,
-    SJØ,
+    SJO,
     FINNMARK,
     SPESIAL
 }

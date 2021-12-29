@@ -6,7 +6,7 @@ public class Fradrag {
         if (tabellnummer.tabelltype == Tabelltype.PENSJONIST)
             return beregnMinstefradragPensjon(personInntektAar);
 
-        if (tabellnummer.tabelltype == Tabelltype.SJØ)
+        if (tabellnummer.tabelltype == Tabelltype.SJO)
             return beregnMinstefradragSjo(personInntektAar);
 
         return beregnMinstefradragVanlig(personInntektAar);
@@ -73,7 +73,7 @@ public class Fradrag {
     }
 
     static long beregnSjoFradrag(Tabellnummer tabellnummer, long personInntektAar) {
-        if (tabellnummer.tabelltype != Tabelltype.SJØ)
+        if (tabellnummer.tabelltype != Tabelltype.SJO)
             return 0L;
 
         long sjoFradrag = Math.round((personInntektAar * Konstanter.SJO_PROSENT) / 100);
