@@ -1,6 +1,7 @@
 package no.twingine;
 
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
@@ -14,8 +15,8 @@ public class Trekk implements HttpFunction {
 
     @Override
     public void service(HttpRequest req, HttpResponse res) throws Exception {
-        long amount = Long.parseLong(req.getFirstQueryParameter("amount").orElse("0"));
-        long trekk = Trekkrutine.beregnTabelltrekk(Tabellnummer.TABELL_7109, Periode.PERIODE_1_MAANED, amount);
+        BigDecimal amount = new BigDecimal(req.getFirstQueryParameter("amount").orElse("0"));
+        long trekk = Trekkrutine.beregnTabelltrekk(Tabellnummer.TABELL_7109, Periode.PERIODE_1_MAANED, amount.longValue());
         res.setContentType("text/plain");
         try (PrintWriter pw = new PrintWriter(res.getWriter())) {
             pw.println(trekk);
