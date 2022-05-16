@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine</groupId>
+  <groupId>no.twingine.trekktabell</groupId>
   <artifactId>trekkrutine-2022</artifactId>
   <packaging>jar</packaging>
-  <version>0-SNAPSHOT</version>
+  <version>0</version>
 
   <dependencies>
     <dependency>
@@ -14,10 +13,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.cloud.functions</groupId>
-      <artifactId>functions-framework-api</artifactId>
-      <version>1.0.4</version>
-      <scope>provided</scope>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-core</artifactId>
+      <version>2.2.17.Final</version>
     </dependency>
   </dependencies>
 
@@ -32,22 +30,34 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/libs</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>libs/</classpathPrefix>
+              <mainClass>no.twingine.Trekk</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
-
-  <distributionManagement>
-    <repository>
-      <id>releases-nexus3</id>
-      <url>https://nexus.sits.no/repository/maven-releases</url>
-    </repository>
-    <snapshotRepository>
-      <id>snapshots-nexus3</id>
-      <name>Internal Snapshots</name>
-      <url>https://nexus.sits.no/repository/maven-snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
 </project>
