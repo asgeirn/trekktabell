@@ -1,9 +1,9 @@
 package no.twingine;
 
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -21,8 +21,11 @@ public class Trekk {
                 .setHandler(new HttpHandler() {
                     @Override
                     public void handleRequest(HttpServerExchange exchange) throws Exception {
+                        String table = "TABELL_" + exchange.getQueryParameters().get("table").element();
+                        Tabellnummer tabellnummer = Arrays.stream(Tabellnummer.values())
+                                .filter(it -> it.name().equals(table)).findFirst().get();
                         BigDecimal amount = new BigDecimal(exchange.getQueryParameters().get("amount").element());
-                        long trekk = Trekkrutine.beregnTabelltrekk(Tabellnummer.TABELL_7109, Periode.PERIODE_1_MAANED,
+                        long trekk = Trekkrutine.beregnTabelltrekk(tabellnummer, Periode.PERIODE_1_MAANED,
                                 amount.longValue());
                         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/plain");
                         exchange.getResponseSender().send(Long.toString(trekk));
