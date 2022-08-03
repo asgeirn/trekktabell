@@ -29,7 +29,8 @@ jobs:
         with:
           images: quay.io/asgeir/trekktabell
           tags: |
-            type=sha
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
       - name: Build and push Docker images
         # You may pin to the exact commit or the version.
         # uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
