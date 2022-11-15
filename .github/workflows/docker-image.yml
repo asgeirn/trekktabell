@@ -46,7 +46,7 @@ jobs:
           # Always attempt to pull all referenced images
           pull: false # optional, default is false
           # Push is a shorthand for --output=type=registry
-          push: ${{ github.event.pull_request.merged == true || github.event.push != undefined }}
+          push: ${{ github.event.pull_request.merged == true || github.event.push != null }}
           # List of tags
           tags: ${{ steps.meta.outputs.tags }}
           # List of labels
