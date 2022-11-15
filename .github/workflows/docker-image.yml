@@ -3,8 +3,10 @@ name: Docker Image CI
 on:
   push:
     branches: [master]
-  pull_request:
+  pull_request_target:
     branches: [master]
+    types:
+      - closed
 
 permissions:
   packages: write
@@ -21,7 +23,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Login to GHCR
         uses: docker/login-action@v2
-        if: github.actor != 'dependabot[bot]'
+        if: github.event.pull_request.merged == true || github.event.push
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -44,7 +46,7 @@ jobs:
           # Always attempt to pull all referenced images
           pull: false # optional, default is false
           # Push is a shorthand for --output=type=registry
-          push: ${{ github.actor != 'dependabot[bot]' }}
+          push: ${{ github.event.pull_request.merged || github.event.push }}
           # List of tags
           tags: ${{ steps.meta.outputs.tags }}
           # List of labels
