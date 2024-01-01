@@ -9,9 +9,9 @@ import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
-import no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine2023.Periode;
-import no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine2023.Tabellnummer;
-import no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine2023.Trekkrutine;
+import no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine2024.Periode;
+import no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine2024.Tabellnummer;
+import no.skatteetaten.fastsetting.formueinntekt.forskudd.trekkrutine2024.Trekkrutine;
 
 public class Trekk {
 
