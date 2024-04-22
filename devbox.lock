@@ -1,0 +1,37 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "jdk-headless@17": {
+      "last_modified": "2024-04-01T22:53:36-04:00",
+      "resolved": "github:NixOS/nixpkgs/080a4a27f206d07724b88da096e27ef63401a504#jdk17_headless",
+      "source": "devbox-search",
+      "version": "17.0.10",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/4p6pjavr2q7m94vbbxs6hjz22rwq8chs-zulu-ca-jdk-17.0.10",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/4p6pjavr2q7m94vbbxs6hjz22rwq8chs-zulu-ca-jdk-17.0.10"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/z2dzd6r1ybd0qbnd0lg4xbmb4scq6rvq-zulu-ca-jdk-17.0.10",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/z2dzd6r1ybd0qbnd0lg4xbmb4scq6rvq-zulu-ca-jdk-17.0.10"
+        }
+      }
+    },
+    "maven": {
+      "resolved": "github:NixOS/nixpkgs/75a52265bda7fd25e06e3a67dee3f0354e73243c#maven",
+      "source": "nixpkg"
+    }
+  }
+}
