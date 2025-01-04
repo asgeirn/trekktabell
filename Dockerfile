@@ -8,4 +8,4 @@ EXPOSE 8080
 WORKDIR /app
 COPY --from=builder /src/target/libs/ /app/libs/
 COPY --from=builder /src/target/*.jar /app/
-CMD [ "/app/trekkrutine-2024-0-SNAPSHOT.jar" ]
+CMD [ "/app/trekkrutine-2025-0-SNAPSHOT.jar" ]
