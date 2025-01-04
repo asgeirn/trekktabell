@@ -10,7 +10,7 @@ Trekktabeller for 2023, 2024 og 2025 er tilgjengelige på https://trekktabell.tw
 Så hvis du har tabell 8200 i 2025 og tjener 65535 kroner brutto per måned kan du få beregnet skattetrekk med følgende:
 
 ```
-curl 'https://trekktabell.twingine.com/2025?table=8200&amount=65535
+curl 'https://trekktabell.twingine.com/2025?table=8200&amount=65535'
 ```
 
 ## Personvern
