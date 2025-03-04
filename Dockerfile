@@ -3,7 +3,7 @@ WORKDIR /src
 ADD . /src
 RUN mvn package
 
-FROM gcr.io/distroless/java17-debian11
+FROM gcr.io/distroless/java17-debian12
 EXPOSE 8080
 WORKDIR /app
 COPY --from=builder /src/target/libs/ /app/libs/
