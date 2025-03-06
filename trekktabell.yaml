@@ -21,14 +21,14 @@ spec:
         trekktabell: "2023"
     spec:
       containers:
-        - image: ghcr.io/asgeirn/trekktabell:2023
+        - image: quay.twingine.com/asgeir/trekktabell:2023
           imagePullPolicy: Always
           name: trekktabell
           ports:
             - containerPort: 8080
               protocol: TCP
       imagePullSecrets:
-        - name: ghcr-pull-secret
+        - name: asgeir-k8s-pull-secret
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -53,14 +53,14 @@ spec:
         trekktabell: "2024"
     spec:
       containers:
-        - image: ghcr.io/asgeirn/trekktabell:2024
+        - image: quay.twingine.com/asgeir/trekktabell:2024
           imagePullPolicy: Always
           name: trekktabell
           ports:
             - containerPort: 8080
               protocol: TCP
       imagePullSecrets:
-        - name: ghcr-pull-secret
+        - name: asgeir-k8s-pull-secret
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -85,14 +85,14 @@ spec:
         trekktabell: "2025"
     spec:
       containers:
-        - image: ghcr.io/asgeirn/trekktabell:2025
+        - image: quay.twingine.com/asgeir/trekktabell:2025
           imagePullPolicy: Always
           name: trekktabell
           ports:
             - containerPort: 8080
               protocol: TCP
       imagePullSecrets:
-        - name: ghcr-pull-secret
+        - name: asgeir-k8s-pull-secret
 ---
 apiVersion: v1
 kind: Service
