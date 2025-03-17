@@ -11,11 +11,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Run Semgrep
+        uses: MaibornWolff/secobserve_actions_templates/actions/SAST/semgrep@main
+        with:
+          target: '.'
+          report_name: 'semgrep.json'
+          configuration: ${{ vars.SEMGREP_CONFIG }}
+          so_api_base_url: ${{ vars.SO_API_BASE_URL }}
+          so_api_token: ${{ secrets.SO_API_TOKEN }}
+          so_product_name: ${{ vars.SO_PRODUCT_NAME }}
+
       - name: Run Trivy image
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/trivy_image@main
         with:
           target: ghcr.io/${{ github.repository }}:latest
-          report_name: 'backend_trivy_image.json'
+          report_name: 'trivy_image.json'
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
@@ -25,7 +35,7 @@ jobs:
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/grype_image@main
         with:
           target: ghcr.io/${{ github.repository }}:latest
-          report_name: 'backend_grype_image.json'
+          report_name: 'grype_image.json'
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
@@ -36,8 +46,9 @@ jobs:
         with:
           name: secobserve
           path: |
-            backend_trivy_image.json
-            backend_grype_image.json
+            semgrep.json
+            trivy_image.json
+            grype_image.json
 
       - name: Check Security Gate
         uses: MaibornWolff/secobserve_actions_templates/actions/check_security_gate@main
