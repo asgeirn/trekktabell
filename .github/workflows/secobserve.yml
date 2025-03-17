@@ -20,6 +20,7 @@ jobs:
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
+          so_branch_name: ${{ github.ref_name }}
 
       - name: Run Trivy image
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/trivy_image@main
