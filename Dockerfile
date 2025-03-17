@@ -4,7 +4,7 @@ ADD . /src
 RUN mvn package
 
 FROM docker.io/library/amazoncorretto:17-alpine
-RUN apk --update upgrade && apk del apk-tools
+RUN apk --update upgrade && apk del apk-tools busybox
 EXPOSE 8080
 WORKDIR /app
 COPY --from=builder /src/target/libs/ /app/libs/
