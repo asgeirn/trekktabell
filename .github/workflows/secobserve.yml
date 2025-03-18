@@ -31,6 +31,7 @@ jobs:
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
           so_branch_name: ${{ github.ref_name }}
+          so_suppress_licenses: false
 
       - name: Run Grype image
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/grype_image@main
