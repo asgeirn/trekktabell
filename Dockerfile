@@ -1,4 +1,4 @@
-FROM docker.io/library/maven:3-openjdk-17-slim AS builder
+FROM docker.io/library/maven:3-openjdk-18-slim AS builder
 WORKDIR /src
 ADD . /src
 RUN mvn package
