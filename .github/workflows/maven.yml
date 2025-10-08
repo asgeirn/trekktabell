@@ -38,7 +38,7 @@ jobs:
       - name: Upload SBOM
         uses: MaibornWolff/secobserve_actions_templates/actions/upload_sbom@main
         with:
-          file_name: bom.json
+          file_name: target/bom.json
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
