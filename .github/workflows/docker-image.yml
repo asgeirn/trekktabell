@@ -38,17 +38,31 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=raw,value={{date 'YYYY'}}
       - name: Build and push Docker images
-        # You may pin to the exact commit or the version.
-        # uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
+        id: image
         uses: docker/build-push-action@v6.18.0
         with:
-          # List of target platforms for build
-          platforms: linux/amd64,linux/arm64 # optional
-          # Always attempt to pull all referenced images
-          pull: false # optional, default is false
-          # Push is a shorthand for --output=type=registry
+          platforms: linux/amd64,linux/arm64
+          pull: false
           push: ${{ github.event.pull_request.merged == true || github.event.pusher != null }}
-          # List of tags
           tags: ${{ steps.meta.outputs.tags }}
-          # List of labels
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Trigger security scan
+        if: github.event.pull_request.merged == true || github.event.pusher != null
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: security-scan
+          client-payload: |
+            {
+              "image_digest": "${{ steps.image.outputs.digest }}",
+              "image_repo": "ghcr.io/${{ github.repository }}",
+              "image_tags": "${{ steps.meta.outputs.tags }}",
+              "ref": "${{ github.ref }}",
+              "sha": "${{ github.sha }}",
+              "actor": "${{ github.actor }}",
+              "run_id": "${{ github.run_id }}",
+              "branch_name": "${{ github.ref_name }}",
+              "repository": "${{ github.repository }}",
+              "timestamp": "${{ github.event.head_commit.timestamp || github.event.pull_request.merged_at }}"
+            }
