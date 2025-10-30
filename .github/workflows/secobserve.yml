@@ -1,8 +1,44 @@
 name: Vulnerability checks
 
 on:
-  repository_dispatch:
-    types: [security-scan]
+  workflow_call:
+    inputs:
+      image_digest:
+        required: true
+        type: string
+        description: "Docker image digest"
+      image_repo:
+        required: true
+        type: string
+        description: "Docker image repository"
+      ref:
+        required: true
+        type: string
+        description: "Git reference"
+      sha:
+        required: true
+        type: string
+        description: "Git SHA"
+      actor:
+        required: true
+        type: string
+        description: "GitHub actor"
+      run_id:
+        required: true
+        type: string
+        description: "GitHub run ID"
+      branch_name:
+        required: true
+        type: string
+        description: "Branch name"
+      repository:
+        required: true
+        type: string
+        description: "Repository name"
+      timestamp:
+        required: true
+        type: string
+        description: "Commit or merge timestamp"
 
 jobs:
   secobserve:
@@ -17,12 +53,12 @@ jobs:
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
-          so_branch_name: ${{ github.event.client_payload.branch_name }}
+          so_branch_name: ${{ inputs.branch_name }}
 
       - name: Create SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: ${{ github.event.client_payload.image_repo }}@${{ github.event.client_payload.image_digest }}
+          image: ${{ inputs.image_repo }}@${{ inputs.image_digest }}
 
       - name: Upload SBOM
         uses: MaibornWolff/secobserve_actions_templates/actions/upload_sbom@main
@@ -30,38 +66,38 @@ jobs:
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
-          so_branch_name: ${{ github.event.client_payload.branch_name }}
-          so_file_name: ${{ github.repository }}-${{ github.job }}.spdx.json
+          so_branch_name: ${{ inputs.branch_name }}
+          so_file_name: ${{ inputs.repository }}-${{ github.job }}.spdx.json
 
       - name: Run Trivy image
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/trivy_image@main
         with:
-          target: ${{ github.event.client_payload.image_repo }}@${{ github.event.client_payload.image_digest }}
+          target: ${{ inputs.image_repo }}@${{ inputs.image_digest }}
           report_name: "trivy_image.json"
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
-          so_branch_name: ${{ github.event.client_payload.branch_name }}
+          so_branch_name: ${{ inputs.branch_name }}
 
       - name: Run Grype image
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/grype_image@main
         with:
-          target: ${{ github.event.client_payload.image_repo }}@${{ github.event.client_payload.image_digest }}
+          target: ${{ inputs.image_repo }}@${{ inputs.image_digest }}
           report_name: "grype_image.json"
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
-          so_branch_name: ${{ github.event.client_payload.branch_name }}
+          so_branch_name: ${{ inputs.branch_name }}
 
       - name: Upload results
         uses: actions/upload-artifact@v5
         with:
-          name: secobserve-${{ github.event.client_payload.sha }}
+          name: secobserve-${{ inputs.sha }}
           path: |
             semgrep.json
             trivy_image.json
             grype_image.json
-            ${{ github.repository }}-${{ github.job }}.spdx.json
+            ${{ inputs.repository }}-${{ github.job }}.spdx.json
 
       - name: Check Security Gate
         uses: MaibornWolff/secobserve_actions_templates/actions/check_security_gate@main
