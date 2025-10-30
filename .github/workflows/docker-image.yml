@@ -46,22 +46,21 @@ jobs:
           push: ${{ github.event.pull_request.merged == true || github.event.pusher != null }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+    outputs:
+      digest: ${{ steps.image.outputs.digest }}
 
-      - name: Trigger security scan
-        if: github.event.pull_request.merged == true || github.event.pusher != null
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: security-scan
-          client-payload: |
-            {
-              "image_digest": "${{ steps.image.outputs.digest }}",
-              "image_repo": "ghcr.io/${{ github.repository }}",
-              "ref": "${{ github.ref }}",
-              "sha": "${{ github.sha }}",
-              "actor": "${{ github.actor }}",
-              "run_id": "${{ github.run_id }}",
-              "branch_name": "${{ github.ref_name }}",
-              "repository": "${{ github.repository }}",
-              "timestamp": "${{ github.event.head_commit.timestamp || github.event.pull_request.merged_at }}"
-            }
+  security-scan:
+    needs: build
+    if: github.event.pull_request.merged == true || github.event.pusher != null
+    uses: ./.github/workflows/secobserve.yml
+    with:
+      image_digest: ${{ needs.build.outputs.digest }}
+      image_repo: ghcr.io/${{ github.repository }}
+      ref: ${{ github.ref }}
+      sha: ${{ github.sha }}
+      actor: ${{ github.actor }}
+      run_id: ${{ github.run_id }}
+      branch_name: ${{ github.ref_name }}
+      repository: ${{ github.repository }}
+      timestamp: ${{ github.event.head_commit.timestamp || github.event.pull_request.merged_at }}
+    secrets: inherit
