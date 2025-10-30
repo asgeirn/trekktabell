@@ -57,7 +57,6 @@ jobs:
             {
               "image_digest": "${{ steps.image.outputs.digest }}",
               "image_repo": "ghcr.io/${{ github.repository }}",
-              "image_tags": "${{ steps.meta.outputs.tags }}",
               "ref": "${{ github.ref }}",
               "sha": "${{ github.sha }}",
               "actor": "${{ github.actor }}",
