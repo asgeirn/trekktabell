@@ -1,56 +1,67 @@
 name: Vulnerability checks
 
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows: [Docker Image CI]
-    types: [completed]
-    branches: [master]
+  repository_dispatch:
+    types: [security-scan]
 
 jobs:
-  build:
+  secobserve:
     runs-on: ubuntu-latest
     steps:
       - name: Run Semgrep
         uses: MaibornWolff/secobserve_actions_templates/actions/SAST/semgrep@main
         with:
-          target: '.'
-          report_name: 'semgrep.json'
+          target: "."
+          report_name: "semgrep.json"
           configuration: ${{ vars.SEMGREP_CONFIG }}
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
-          so_branch_name: ${{ github.ref_name }}
+          so_branch_name: ${{ github.event.client_payload.branch_name }}
+
+      - name: Create SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ github.event.client_payload.image_repo }}@${{ github.event.client_payload.image_digest }}
+
+      - name: Upload SBOM
+        uses: MaibornWolff/secobserve_actions_templates/actions/upload_sbom@main
+        with:
+          so_api_base_url: ${{ vars.SO_API_BASE_URL }}
+          so_api_token: ${{ secrets.SO_API_TOKEN }}
+          so_product_name: ${{ vars.SO_PRODUCT_NAME }}
+          so_branch_name: ${{ github.event.client_payload.branch_name }}
+          so_file_name: ${{ github.repository }}-${{ github.job }}.spdx.json
 
       - name: Run Trivy image
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/trivy_image@main
         with:
-          target: ghcr.io/${{ github.repository }}:latest
-          report_name: 'trivy_image.json'
+          target: ${{ github.event.client_payload.image_repo }}@${{ github.event.client_payload.image_digest }}
+          report_name: "trivy_image.json"
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
-          so_branch_name: ${{ github.ref_name }}
-          so_suppress_licenses: false
+          so_branch_name: ${{ github.event.client_payload.branch_name }}
 
       - name: Run Grype image
         uses: MaibornWolff/secobserve_actions_templates/actions/SCA/grype_image@main
         with:
-          target: ghcr.io/${{ github.repository }}:latest
-          report_name: 'grype_image.json'
+          target: ${{ github.event.client_payload.image_repo }}@${{ github.event.client_payload.image_digest }}
+          report_name: "grype_image.json"
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
           so_product_name: ${{ vars.SO_PRODUCT_NAME }}
-          so_branch_name: ${{ github.ref_name }}
+          so_branch_name: ${{ github.event.client_payload.branch_name }}
 
       - name: Upload results
         uses: actions/upload-artifact@v5
         with:
-          name: secobserve
+          name: secobserve-${{ github.event.client_payload.sha }}
           path: |
             semgrep.json
             trivy_image.json
             grype_image.json
+            ${{ github.repository }}-${{ github.job }}.spdx.json
 
       - name: Check Security Gate
         uses: MaibornWolff/secobserve_actions_templates/actions/check_security_gate@main
