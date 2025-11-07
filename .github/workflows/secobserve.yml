@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Semgrep
-        uses: MaibornWolff/secobserve_actions_templates/actions/SAST/semgrep@main
+        uses: SecObserve/secobserve_actions_templates/actions/SAST/semgrep@main
         with:
           target: "."
           report_name: "semgrep.json"
@@ -61,7 +61,7 @@ jobs:
           image: ${{ inputs.image_repo }}@${{ inputs.image_digest }}
 
       - name: Upload SBOM
-        uses: MaibornWolff/secobserve_actions_templates/actions/upload_sbom@main
+        uses: SecObserve/secobserve_actions_templates/actions/upload_sbom@main
         with:
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}
@@ -70,7 +70,7 @@ jobs:
           so_file_name: ${{ inputs.repository }}-${{ github.job }}.spdx.json
 
       - name: Run Trivy image
-        uses: MaibornWolff/secobserve_actions_templates/actions/SCA/trivy_image@main
+        uses: SecObserve/secobserve_actions_templates/actions/SCA/trivy_image@main
         with:
           target: ${{ inputs.image_repo }}@${{ inputs.image_digest }}
           report_name: "trivy_image.json"
@@ -80,7 +80,7 @@ jobs:
           so_branch_name: ${{ inputs.branch_name }}
 
       - name: Run Grype image
-        uses: MaibornWolff/secobserve_actions_templates/actions/SCA/grype_image@main
+        uses: SecObserve/secobserve_actions_templates/actions/SCA/grype_image@main
         with:
           target: ${{ inputs.image_repo }}@${{ inputs.image_digest }}
           report_name: "grype_image.json"
@@ -100,7 +100,7 @@ jobs:
             ${{ inputs.repository }}-${{ github.job }}.spdx.json
 
       - name: Check Security Gate
-        uses: MaibornWolff/secobserve_actions_templates/actions/check_security_gate@main
+        uses: SecObserve/secobserve_actions_templates/actions/check_security_gate@main
         with:
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
           so_api_token: ${{ secrets.SO_API_TOKEN }}

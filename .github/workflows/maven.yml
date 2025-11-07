@@ -36,7 +36,7 @@ jobs:
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8
 
       - name: Upload SBOM
-        uses: MaibornWolff/secobserve_actions_templates/actions/upload_sbom@main
+        uses: SecObserve/secobserve_actions_templates/actions/upload_sbom@main
         with:
           so_file_name: target/bom.json
           so_api_base_url: ${{ vars.SO_API_BASE_URL }}
