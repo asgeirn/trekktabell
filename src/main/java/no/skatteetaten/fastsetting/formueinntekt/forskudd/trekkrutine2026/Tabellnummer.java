@@ -100,8 +100,8 @@ public enum Tabellnummer {
     TABELL_6550(Tabelltype.FINNMARK, 0L, Konstanter.PERSONFRADRAG_FINNMARK, "Ingen", false),
     TABELL_6700(Tabelltype.FINNMARK, 0L, Konstanter.PERSONFRADRAG_FINNMARK, "Lav", true),
 
-    TABELL_0100(Tabelltype.SJØ, 0L, Konstanter.PERSONFRADRAG, "Ingen", true),
-    TABELL_0101(Tabelltype.SJØ, 0L, Konstanter.PERSONFRADRAG, "Høy", true),
+    TABELL_0100(Tabelltype.SJO, 0L, Konstanter.PERSONFRADRAG, "Ingen", true),
+    TABELL_0101(Tabelltype.SJO, 0L, Konstanter.PERSONFRADRAG, "Høy", true),
 
     TABELL_7150(Tabelltype.SPESIAL, 0L, Konstanter.PERSONFRADRAG, "Høy", true),
     TABELL_7160(Tabelltype.SPESIAL, 0L, Konstanter.PERSONFRADRAG, "Ingen", true),
@@ -124,7 +124,7 @@ public enum Tabellnummer {
 
     boolean isStandardFradrag() {
         return (tabelltype == Tabelltype.STANDARDFRADRAG ||
-                tabelltype == Tabelltype.SJØ ||
+                tabelltype == Tabelltype.SJO ||
                 tabelltype == Tabelltype.FINNMARK);
     }
 
