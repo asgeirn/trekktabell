@@ -2,36 +2,46 @@
   "lockfile_version": "1",
   "packages": {
     "jdk-headless@17": {
-      "last_modified": "2024-04-01T22:53:36-04:00",
-      "resolved": "github:NixOS/nixpkgs/080a4a27f206d07724b88da096e27ef63401a504#jdk17_headless",
+      "last_modified": "2025-11-23T21:50:36Z",
+      "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#jdk17_headless",
       "source": "devbox-search",
-      "version": "17.0.10",
+      "version": "17.0.12",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/4p6pjavr2q7m94vbbxs6hjz22rwq8chs-zulu-ca-jdk-17.0.10",
+              "path": "/nix/store/1zk09245ijh8dyhlmdrlgv706q0z840l-zulu-ca-jdk-17.0.12",
               "default": true
             }
           ],
-          "store_path": "/nix/store/4p6pjavr2q7m94vbbxs6hjz22rwq8chs-zulu-ca-jdk-17.0.10"
+          "store_path": "/nix/store/1zk09245ijh8dyhlmdrlgv706q0z840l-zulu-ca-jdk-17.0.12"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/z2dzd6r1ybd0qbnd0lg4xbmb4scq6rvq-zulu-ca-jdk-17.0.10",
+              "path": "/nix/store/vb19xh0lvakc9z243sxvapyafscgsa76-zulu-ca-jdk-17.0.12",
               "default": true
             }
           ],
-          "store_path": "/nix/store/z2dzd6r1ybd0qbnd0lg4xbmb4scq6rvq-zulu-ca-jdk-17.0.10"
+          "store_path": "/nix/store/vb19xh0lvakc9z243sxvapyafscgsa76-zulu-ca-jdk-17.0.12"
         }
       }
     },
     "maven": {
       "resolved": "github:NixOS/nixpkgs/75a52265bda7fd25e06e3a67dee3f0354e73243c#maven",
-      "source": "nixpkg"
+      "source": "nixpkg",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "path": "/nix/store/fg7sva8pccx1zqy63djh4md5qawfqj5l-apache-maven-3.9.5",
+              "default": true
+            }
+          ]
+        }
+      }
     }
   }
 }
