@@ -86,4 +86,14 @@ When updating for a new tax year:
 
 ## Deployment
 
-Docker multi-stage build using Chainguard JRE runtime. Published to GHCR. Kubernetes manifests in `k8s/` directory.
+Docker multi-stage build using Chainguard JRE runtime. Published to GHCR. Kubernetes manifests in `trekktabell.yaml`.
+
+### Updating Image Digests
+
+Images in `trekktabell.yaml` are pinned to SHA256 digests. After a new image is published, update the digest using the manifest index digest (for multiarch support):
+
+```bash
+skopeo inspect --raw docker://zot.twingine.com/ghcr/asgeirn/trekktabell:2026 | sha256sum | cut -d' ' -f1
+```
+
+This returns the manifest index digest, allowing Kubernetes to pull the correct architecture (amd64 or arm64) at runtime.
