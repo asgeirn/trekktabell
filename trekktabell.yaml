@@ -136,41 +136,36 @@ spec:
     trekktabell: "2025"
   type: ClusterIP
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
-  annotations:
-    cert-manager.io/cluster-issuer: acme-issuer
   name: trekktabell
   namespace: trekktabell
 spec:
-  ingressClassName: nginx
+  parentRefs:
+  - name: gateway
+    namespace: kgateway-system
+  hostnames:
+  - trekktabell.twingine.com
   rules:
-  - host: trekktabell.twingine.com
-    http:
-      paths:
-      - backend:
-          service:
-            name: trekktabell-2023
-            port:
-              number: 8080
-        path: /2023
-        pathType: Exact
-      - backend:
-          service:
-            name: trekktabell-2024
-            port:
-              number: 8080
-        path: /2024
-        pathType: Exact
-      - backend:
-          service:
-            name: trekktabell-2025
-            port:
-              number: 8080
-        path: /2025
-        pathType: Exact
-  tls:
-  - hosts:
-    - trekktabell.twingine.com
-    secretName: trekktabell-tls
+  - matches:
+    - path:
+        type: Exact
+        value: /2023
+    backendRefs:
+    - name: trekktabell-2023
+      port: 8080
+  - matches:
+    - path:
+        type: Exact
+        value: /2024
+    backendRefs:
+    - name: trekktabell-2024
+      port: 8080
+  - matches:
+    - path:
+        type: Exact
+        value: /2025
+    backendRefs:
+    - name: trekktabell-2025
+      port: 8080
