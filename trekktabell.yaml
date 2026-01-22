@@ -88,6 +88,36 @@ spec:
         - containerPort: 8080
           protocol: TCP
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    trekktabell: "2026"
+  name: trekktabell-2026
+  namespace: trekktabell
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      trekktabell: "2026"
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        trekktabell: "2026"
+    spec:
+      containers:
+      - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2026@sha256:08d5c9a5d3e32862ad7bb107818fed8583fe6c12170dbd6af39571ca37aa467f
+        imagePullPolicy: Always
+        name: trekktabell
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -136,6 +166,22 @@ spec:
     trekktabell: "2025"
   type: ClusterIP
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    trekktabell: "2026"
+  name: trekktabell-2026
+  namespace: trekktabell
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    trekktabell: "2026"
+  type: ClusterIP
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -168,4 +214,11 @@ spec:
         value: /2025
     backendRefs:
     - name: trekktabell-2025
+      port: 8080
+  - matches:
+    - path:
+        type: Exact
+        value: /2026
+    backendRefs:
+    - name: trekktabell-2026
       port: 8080
