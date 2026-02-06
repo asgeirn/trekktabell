@@ -28,7 +28,7 @@ steps:
         --push .
       - "buildkite-agent meta-data set image-ref packages.buildkite.com/asgeirn/registry/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}"
 
-  - label: ":magnifying_glass_tilted_left: Semgrep"
+  - label: ":semgrep: Semgrep"
     key: "semgrep"
     commands:
       - "export TARGET=."
@@ -49,40 +49,37 @@ steps:
     artifact_paths:
       - "semgrep.json"
 
-  - label: ":cyclonedx: Upload SBOM"
+  - label: ":package: Upload SBOM"
     key: "sbom"
     depends_on: "build"
     commands:
       - "buildkite-agent artifact download target/bom.json ."
-      - "export SO_FILE_NAME=target/bom.json"
-      - "export SO_BRANCH_NAME=$$BUILDKITE_BRANCH"
-      - "/entrypoints/entrypoint_upload_sbom.sh"
-    plugins:
-      - docker#v5.12.0:
-          image: "ghcr.io/secobserve/secobserve-scanners:2026_01"
-          environment:
-            - "SO_API_BASE_URL"
-            - "SO_API_TOKEN"
-            - "SO_PRODUCT_NAME"
-            - "BUILDKITE_BRANCH"
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        -e SO_FILE_NAME=target/bom.json
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_upload_sbom.sh
     soft_fail: true
 
   - label: ":trivy: Trivy image scan"
     key: "trivy"
     depends_on: "docker"
     commands:
-      - "export TARGET=$$(buildkite-agent meta-data get image-ref)"
-      - "export REPORT_NAME=trivy_image.json"
-      - "export SO_BRANCH_NAME=$$BUILDKITE_BRANCH"
-      - "/entrypoints/entrypoint_trivy_image.sh"
-    plugins:
-      - docker#v5.12.0:
-          image: "ghcr.io/secobserve/secobserve-scanners:2026_01"
-          environment:
-            - "SO_API_BASE_URL"
-            - "SO_API_TOKEN"
-            - "SO_PRODUCT_NAME"
-            - "BUILDKITE_BRANCH"
+      - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
+      - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -v $${HOME}/.docker/config.json:/root/.docker/config.json:ro
+        -e TARGET=$$IMAGE_REF
+        -e REPORT_NAME=trivy_image.json
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_trivy_image.sh
     soft_fail: true
     artifact_paths:
       - "trivy_image.json"
@@ -91,18 +88,18 @@ steps:
     key: "grype"
     depends_on: "docker"
     commands:
-      - "export TARGET=$$(buildkite-agent meta-data get image-ref)"
-      - "export REPORT_NAME=grype_image.json"
-      - "export SO_BRANCH_NAME=$$BUILDKITE_BRANCH"
-      - "/entrypoints/entrypoint_grype_image.sh"
-    plugins:
-      - docker#v5.12.0:
-          image: "ghcr.io/secobserve/secobserve-scanners:2026_01"
-          environment:
-            - "SO_API_BASE_URL"
-            - "SO_API_TOKEN"
-            - "SO_PRODUCT_NAME"
-            - "BUILDKITE_BRANCH"
+      - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
+      - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -v $${HOME}/.docker/config.json:/root/.docker/config.json:ro
+        -e TARGET=$$IMAGE_REF
+        -e REPORT_NAME=grype_image.json
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_grype_image.sh
     soft_fail: true
     artifact_paths:
       - "grype_image.json"
@@ -115,13 +112,9 @@ steps:
       - "grype"
     allow_dependency_failure: true
     commands:
-      - "export SO_BRANCH_NAME=$$BUILDKITE_BRANCH"
-      - "/entrypoints/entrypoint_check_security_gate.sh"
-    plugins:
-      - docker#v5.12.0:
-          image: "ghcr.io/secobserve/secobserve-scanners:2026_01"
-          environment:
-            - "SO_API_BASE_URL"
-            - "SO_API_TOKEN"
-            - "SO_PRODUCT_NAME"
-            - "BUILDKITE_BRANCH"
+      - >-
+        docker run --rm
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_check_security_gate.sh
