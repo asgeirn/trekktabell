@@ -111,7 +111,7 @@ spec:
         trekktabell: "2026"
     spec:
       containers:
-      - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2026@sha256:5d49bb35ed13acbb2e4293a249720016fdff9580061914dcc0dc65c88af47a65
+      - image: packages.buildkite.com/asgeirn/registry/trekktabell:2026@sha256:ff45bf40be3a0c15473f962fdc363f4d99903c0e909a755e56f194ccc8d6a453
         imagePullPolicy: Always
         name: trekktabell
         ports:
