@@ -1,5 +1,6 @@
 steps:
   - label: ":maven: Build"
+    key: "build"
     command:
       - "mvn -B package --file pom.xml"
     plugins:
@@ -8,8 +9,23 @@ steps:
     artifact_paths:
       - "target/bom.json"
 
-  # TODO: Implement SecObserve SBOM upload once API details are confirmed
-  # - label: ":shield: Upload SBOM"
-  #   depends_on: "build"
+  - label: ":docker: Build and push"
+    depends_on: "build"
+    commands:
+      - "YEAR=$$(grep -oP '<artifactId>trekkrutine-\\K\\d{4}' pom.xml)"
+      - "docker login -u $$GHCR_USERNAME -p $$GHCR_TOKEN ghcr.io"
+      - "docker buildx create --name multiarch --use || docker buildx use multiarch"
+      - >-
+        docker buildx build
+        --platform linux/amd64,linux/arm64
+        --tag ghcr.io/asgeirn/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}
+        --tag ghcr.io/asgeirn/trekktabell:latest
+        --tag ghcr.io/asgeirn/trekktabell:$$YEAR
+        --push .
+
+  # TODO: Implement security scanning (SecObserve)
+  # Steps to add: semgrep, trivy, grype, SBOM upload, security gate
+  # - label: ":shield: Security scan"
+  #   depends_on: "docker"
   #   command:
-  #     - "curl -X POST ..."
+  #     - "..."
