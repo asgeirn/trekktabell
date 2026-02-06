@@ -1,5 +1,5 @@
 env:
-  SO_PRODUCT_NAME: "trekktabell"
+  SO_PRODUCT_NAME: "Trekktabell"
   SEMGREP_CONFIG: "p/java"
 
 steps:
