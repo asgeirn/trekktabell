@@ -13,14 +13,14 @@ steps:
     depends_on: "build"
     commands:
       - "YEAR=$$(grep -oP '<artifactId>trekkrutine-\\K\\d{4}' pom.xml)"
-      - "docker login -u $$GHCR_USERNAME -p $$GHCR_TOKEN ghcr.io"
+      - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
       - "docker buildx create --name multiarch --use || docker buildx use multiarch"
       - >-
         docker buildx build
         --platform linux/amd64,linux/arm64
-        --tag ghcr.io/asgeirn/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}
-        --tag ghcr.io/asgeirn/trekktabell:latest
-        --tag ghcr.io/asgeirn/trekktabell:$$YEAR
+        --tag packages.buildkite.com/asgeirn/registry/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}
+        --tag packages.buildkite.com/asgeirn/registry/trekktabell:latest
+        --tag packages.buildkite.com/asgeirn/registry/trekktabell:$$YEAR
         --push .
 
   # TODO: Implement security scanning (SecObserve)
