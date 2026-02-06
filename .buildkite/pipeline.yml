@@ -31,20 +31,18 @@ steps:
   - label: ":semgrep: Semgrep"
     key: "semgrep"
     commands:
-      - "export TARGET=."
-      - "export REPORT_NAME=semgrep.json"
-      - "export CONFIGURATION=$$SEMGREP_CONFIG"
-      - "export SO_BRANCH_NAME=$$BUILDKITE_BRANCH"
-      - "/entrypoints/entrypoint_semgrep.sh"
-    plugins:
-      - docker#v5.12.0:
-          image: "ghcr.io/secobserve/secobserve-scanners:2026_01"
-          environment:
-            - "SO_API_BASE_URL"
-            - "SO_API_TOKEN"
-            - "SO_PRODUCT_NAME"
-            - "SEMGREP_CONFIG"
-            - "BUILDKITE_BRANCH"
+      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
+      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -e TARGET=.
+        -e REPORT_NAME=semgrep.json
+        -e CONFIGURATION=$$SEMGREP_CONFIG
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_semgrep.sh
     soft_fail: true
     artifact_paths:
       - "semgrep.json"
@@ -54,6 +52,8 @@ steps:
     depends_on: "build"
     commands:
       - "buildkite-agent artifact download target/bom.json ."
+      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
+      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - >-
         docker run --rm
         -v $${PWD}:/workspace -w /workspace
@@ -69,6 +69,8 @@ steps:
     depends_on: "docker"
     commands:
       - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
+      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
+      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
       - "docker pull $$IMAGE_REF"
       - >-
@@ -90,6 +92,8 @@ steps:
     depends_on: "docker"
     commands:
       - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
+      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
+      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
       - "docker pull $$IMAGE_REF"
       - >-
@@ -114,6 +118,8 @@ steps:
       - "grype"
     allow_dependency_failure: true
     commands:
+      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
+      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - >-
         docker run --rm
         -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
