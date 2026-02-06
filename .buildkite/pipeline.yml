@@ -10,7 +10,6 @@ steps:
       - "target/bom.json"
 
   - label: ":docker: Build and push"
-    depends_on: "build"
     commands:
       - "YEAR=$$(grep -oP '<artifactId>trekkrutine-\\K\\d{4}' pom.xml)"
       - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
