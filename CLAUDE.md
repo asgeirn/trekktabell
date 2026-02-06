@@ -86,14 +86,28 @@ When updating for a new tax year:
 
 ## Deployment
 
-Docker multi-stage build using Chainguard JRE runtime. Published to GHCR. Kubernetes manifests in `trekktabell.yaml`.
+Docker multi-stage build using Chainguard JRE runtime. Published to `packages.buildkite.com/asgeirn/registry/trekktabell`. Kubernetes manifests in `trekktabell.yaml`.
+
+### CI/CD
+
+Buildkite pipeline (`.buildkite/pipeline.yml`) runs:
+1. Maven build and test (in Docker)
+2. Multi-arch Docker build (linux/amd64, linux/arm64) and push to Buildkite OCI registry
+
+Authentication to the registry uses OIDC via `buildkite-agent oidc request-token`. Tags pushed: `sha-<short>`, `latest`, and the year extracted from `pom.xml`.
 
 ### Updating Image Digests
 
-Images in `trekktabell.yaml` are pinned to SHA256 digests. After a new image is published, update the digest using the manifest index digest (for multiarch support):
+Images in `trekktabell.yaml` are pinned to SHA256 digests. After a new image is published, get the manifest list digest from the Buildkite build log:
 
 ```bash
-skopeo inspect --raw docker://zot.twingine.com/ghcr/asgeirn/trekktabell:2026 | sha256sum | cut -d' ' -f1
+bk job log <job-id> | grep 'exporting manifest list'
 ```
 
-This returns the manifest index digest, allowing Kubernetes to pull the correct architecture (amd64 or arm64) at runtime.
+The digest appears as `sha256:...` in the log output. Update the corresponding deployment in `trekktabell.yaml` with the new digest.
+
+## Available Tools
+
+- **`bk`** - Buildkite CLI for managing builds, viewing logs, and triggering rebuilds. Use `echo Y | bk <command>` for commands requiring confirmation. Use `jq` to parse JSON output.
+- **`yq`** - YAML processor for validating and querying YAML files.
+- **`skopeo`** - Container image inspection tool (requires authentication for private registries).
