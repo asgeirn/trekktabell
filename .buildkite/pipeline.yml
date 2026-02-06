@@ -31,8 +31,6 @@ steps:
   - label: ":semgrep: Semgrep"
     key: "semgrep"
     commands:
-      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
-      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - >-
         docker run --rm
         -v $${PWD}:/workspace -w /workspace
@@ -40,7 +38,9 @@ steps:
         -e REPORT_NAME=semgrep.json
         -e CONFIGURATION=$$SEMGREP_CONFIG
         -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
-        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
         ghcr.io/secobserve/secobserve-scanners:2026_01
         /entrypoints/entrypoint_semgrep.sh
     soft_fail: true
@@ -52,12 +52,12 @@ steps:
     depends_on: "build"
     commands:
       - "buildkite-agent artifact download target/bom.json ."
-      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
-      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - >-
         docker run --rm
         -v $${PWD}:/workspace -w /workspace
-        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
         -e SO_FILE_NAME=target/bom.json
         -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
         ghcr.io/secobserve/secobserve-scanners:2026_01
@@ -69,8 +69,6 @@ steps:
     depends_on: "docker"
     commands:
       - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
-      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
-      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
       - "docker pull $$IMAGE_REF"
       - >-
@@ -80,7 +78,9 @@ steps:
         -e TARGET=$$IMAGE_REF
         -e REPORT_NAME=trivy_image.json
         -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
-        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
         ghcr.io/secobserve/secobserve-scanners:2026_01
         /entrypoints/entrypoint_trivy_image.sh
     soft_fail: true
@@ -92,8 +92,6 @@ steps:
     depends_on: "docker"
     commands:
       - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
-      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
-      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
       - "docker pull $$IMAGE_REF"
       - >-
@@ -103,7 +101,9 @@ steps:
         -e TARGET=$$IMAGE_REF
         -e REPORT_NAME=grype_image.json
         -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
-        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
         ghcr.io/secobserve/secobserve-scanners:2026_01
         /entrypoints/entrypoint_grype_image.sh
     soft_fail: true
@@ -118,11 +118,11 @@ steps:
       - "grype"
     allow_dependency_failure: true
     commands:
-      - "export SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)"
-      - "export SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)"
       - >-
         docker run --rm
         -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
-        -e SO_API_BASE_URL -e SO_API_TOKEN -e SO_PRODUCT_NAME
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
         ghcr.io/secobserve/secobserve-scanners:2026_01
         /entrypoints/entrypoint_check_security_gate.sh
