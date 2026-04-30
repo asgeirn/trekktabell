@@ -1,0 +1,128 @@
+env:
+  SO_PRODUCT_NAME: "Trekktabell"
+  SEMGREP_CONFIG: "p/java"
+
+steps:
+  - label: ":maven: Build"
+    key: "build"
+    command:
+      - "mvn -B package --file pom.xml"
+    plugins:
+      - docker#v5.12.0:
+          image: "maven:3-openjdk-17-slim"
+    artifact_paths:
+      - "target/bom.json"
+
+  - label: ":docker: Build and push"
+    key: "docker"
+    commands:
+      - "YEAR=$$(grep -oP '<artifactId>trekkrutine-\\K\\d{4}' pom.xml)"
+      - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
+      - "docker buildx create --name multiarch --use || docker buildx use multiarch"
+      - >-
+        docker buildx build
+        --platform linux/amd64,linux/arm64
+        --tag packages.buildkite.com/asgeirn/registry/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}
+        --tag packages.buildkite.com/asgeirn/registry/trekktabell:latest
+        --tag packages.buildkite.com/asgeirn/registry/trekktabell:$$YEAR
+        --push .
+      - "buildkite-agent meta-data set image-ref packages.buildkite.com/asgeirn/registry/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}"
+
+  - label: ":semgrep: Semgrep"
+    key: "semgrep"
+    commands:
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -e TARGET=.
+        -e REPORT_NAME=semgrep.json
+        -e CONFIGURATION=$$SEMGREP_CONFIG
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_semgrep.sh
+    soft_fail: true
+    artifact_paths:
+      - "semgrep.json"
+
+  - label: ":package: Upload SBOM"
+    key: "sbom"
+    depends_on: "build"
+    commands:
+      - "buildkite-agent artifact download target/bom.json ."
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
+        -e SO_FILE_NAME=target/bom.json
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_upload_sbom.sh
+    soft_fail: true
+
+  - label: ":trivy: Trivy image scan"
+    key: "trivy"
+    depends_on: "docker"
+    commands:
+      - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
+      - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
+      - "docker pull $$IMAGE_REF"
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -v /var/run/docker.sock:/var/run/docker.sock
+        -e TARGET=$$IMAGE_REF
+        -e REPORT_NAME=trivy_image.json
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_trivy_image.sh
+    soft_fail: true
+    artifact_paths:
+      - "trivy_image.json"
+
+  - label: ":grype: Grype image scan"
+    key: "grype"
+    depends_on: "docker"
+    commands:
+      - "IMAGE_REF=$$(buildkite-agent meta-data get image-ref)"
+      - "buildkite-agent oidc request-token --audience https://packages.buildkite.com/asgeirn/registry | docker login packages.buildkite.com/asgeirn/registry -u buildkite --password-stdin"
+      - "docker pull $$IMAGE_REF"
+      - >-
+        docker run --rm
+        -v $${PWD}:/workspace -w /workspace
+        -v /var/run/docker.sock:/var/run/docker.sock
+        -e TARGET=$$IMAGE_REF
+        -e REPORT_NAME=grype_image.json
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_grype_image.sh
+    soft_fail: true
+    artifact_paths:
+      - "grype_image.json"
+
+  - label: ":shield: Security gate"
+    depends_on:
+      - "semgrep"
+      - "sbom"
+      - "trivy"
+      - "grype"
+    allow_dependency_failure: true
+    commands:
+      - >-
+        docker run --rm
+        -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
+        -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
+        -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
+        -e SO_PRODUCT_NAME
+        ghcr.io/secobserve/secobserve-scanners:2026_01
+        /entrypoints/entrypoint_check_security_gate.sh
