@@ -1,6 +1,7 @@
 env:
   SO_PRODUCT_NAME: "Trekktabell"
   SEMGREP_CONFIG: "p/java"
+  SECOBSERVE_SCANNERS_IMAGE: "ghcr.io/secobserve/secobserve-scanners:2026_04"
 
 steps:
   - label: ":maven: Build"
@@ -41,7 +42,7 @@ steps:
         -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
         -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
         -e SO_PRODUCT_NAME
-        ghcr.io/secobserve/secobserve-scanners:2026_01
+        $$SECOBSERVE_SCANNERS_IMAGE
         /entrypoints/entrypoint_semgrep.sh
     soft_fail: true
     artifact_paths:
@@ -60,7 +61,7 @@ steps:
         -e SO_PRODUCT_NAME
         -e SO_FILE_NAME=target/bom.json
         -e SO_BRANCH_NAME=$$BUILDKITE_BRANCH
-        ghcr.io/secobserve/secobserve-scanners:2026_01
+        $$SECOBSERVE_SCANNERS_IMAGE
         /entrypoints/entrypoint_upload_sbom.sh
     soft_fail: true
 
@@ -81,7 +82,7 @@ steps:
         -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
         -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
         -e SO_PRODUCT_NAME
-        ghcr.io/secobserve/secobserve-scanners:2026_01
+        $$SECOBSERVE_SCANNERS_IMAGE
         /entrypoints/entrypoint_trivy_image.sh
     soft_fail: true
     artifact_paths:
@@ -104,7 +105,7 @@ steps:
         -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
         -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
         -e SO_PRODUCT_NAME
-        ghcr.io/secobserve/secobserve-scanners:2026_01
+        $$SECOBSERVE_SCANNERS_IMAGE
         /entrypoints/entrypoint_grype_image.sh
     soft_fail: true
     artifact_paths:
@@ -124,5 +125,5 @@ steps:
         -e SO_API_BASE_URL=$$(buildkite-agent secret get SO_API_BASE_URL)
         -e SO_API_TOKEN=$$(buildkite-agent secret get SO_API_TOKEN)
         -e SO_PRODUCT_NAME
-        ghcr.io/secobserve/secobserve-scanners:2026_01
+        $$SECOBSERVE_SCANNERS_IMAGE
         /entrypoints/entrypoint_check_security_gate.sh
