@@ -26,7 +26,7 @@ steps:
         --tag packages.buildkite.com/asgeirn/registry/trekktabell:latest
         --tag packages.buildkite.com/asgeirn/registry/trekktabell:$$YEAR
         --push .
-      - "buildkite-agent meta-data set image-ref packages.buildkite.com/asgeirn/registry/trekktabell:sha-$$YEAR"
+      - "buildkite-agent meta-data set image-ref packages.buildkite.com/asgeirn/registry/trekktabell:$$YEAR"
 
   - label: ":semgrep: Semgrep"
     key: "semgrep"
