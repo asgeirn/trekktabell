@@ -21,12 +21,12 @@ spec:
         trekktabell: "2023"
     spec:
       containers:
-      - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2023@sha256:03ff678455449c1ca81348ba1b4529b1089ff82b68d0c92e3c9f421ff245a7e2
-        imagePullPolicy: Always
-        name: trekktabell
-        ports:
-        - containerPort: 8080
-          protocol: TCP
+        - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2023@sha256:03ff678455449c1ca81348ba1b4529b1089ff82b68d0c92e3c9f421ff245a7e2
+          imagePullPolicy: Always
+          name: trekktabell
+          ports:
+            - containerPort: 8080
+              protocol: TCP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,12 +51,12 @@ spec:
         trekktabell: "2024"
     spec:
       containers:
-      - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2024@sha256:5b9810d8340ff37faf61cab2adc9f618786622b2bd6483f3532bb15ee6f913a9
-        imagePullPolicy: Always
-        name: trekktabell
-        ports:
-        - containerPort: 8080
-          protocol: TCP
+        - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2024@sha256:5b9810d8340ff37faf61cab2adc9f618786622b2bd6483f3532bb15ee6f913a9
+          imagePullPolicy: Always
+          name: trekktabell
+          ports:
+            - containerPort: 8080
+              protocol: TCP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -81,12 +81,12 @@ spec:
         trekktabell: "2025"
     spec:
       containers:
-      - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2025@sha256:7eeae0b35a81c826d8f42cf0b5e24010290bf87b066f3337762fde4c2ffc909e
-        imagePullPolicy: Always
-        name: trekktabell
-        ports:
-        - containerPort: 8080
-          protocol: TCP
+        - image: zot.twingine.com/ghcr/asgeirn/trekktabell:2025@sha256:7eeae0b35a81c826d8f42cf0b5e24010290bf87b066f3337762fde4c2ffc909e
+          imagePullPolicy: Always
+          name: trekktabell
+          ports:
+            - containerPort: 8080
+              protocol: TCP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -111,12 +111,12 @@ spec:
         trekktabell: "2026"
     spec:
       containers:
-      - image: packages.buildkite.com/asgeirn/registry/trekktabell:2026@sha256:ff45bf40be3a0c15473f962fdc363f4d99903c0e909a755e56f194ccc8d6a453
-        imagePullPolicy: Always
-        name: trekktabell
-        ports:
-        - containerPort: 8080
-          protocol: TCP
+        - image: packages.buildkite.com/asgeirn/registry/trekktabell:2026
+          imagePullPolicy: Always
+          name: trekktabell
+          ports:
+            - containerPort: 8080
+              protocol: TCP
 ---
 apiVersion: v1
 kind: Service
@@ -127,9 +127,9 @@ metadata:
   namespace: trekktabell
 spec:
   ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
   selector:
     trekktabell: "2023"
   type: ClusterIP
@@ -143,9 +143,9 @@ metadata:
   namespace: trekktabell
 spec:
   ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
   selector:
     trekktabell: "2024"
   type: ClusterIP
@@ -159,9 +159,9 @@ metadata:
   namespace: trekktabell
 spec:
   ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
   selector:
     trekktabell: "2025"
   type: ClusterIP
@@ -175,9 +175,9 @@ metadata:
   namespace: trekktabell
 spec:
   ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
   selector:
     trekktabell: "2026"
   type: ClusterIP
@@ -189,36 +189,36 @@ metadata:
   namespace: trekktabell
 spec:
   parentRefs:
-  - name: gateway
-    namespace: kgateway-system
+    - name: gateway
+      namespace: kgateway-system
   hostnames:
-  - trekktabell.twingine.com
+    - trekktabell.twingine.com
   rules:
-  - matches:
-    - path:
-        type: Exact
-        value: /2023
-    backendRefs:
-    - name: trekktabell-2023
-      port: 8080
-  - matches:
-    - path:
-        type: Exact
-        value: /2024
-    backendRefs:
-    - name: trekktabell-2024
-      port: 8080
-  - matches:
-    - path:
-        type: Exact
-        value: /2025
-    backendRefs:
-    - name: trekktabell-2025
-      port: 8080
-  - matches:
-    - path:
-        type: Exact
-        value: /2026
-    backendRefs:
-    - name: trekktabell-2026
-      port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /2023
+      backendRefs:
+        - name: trekktabell-2023
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /2024
+      backendRefs:
+        - name: trekktabell-2024
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /2025
+      backendRefs:
+        - name: trekktabell-2025
+          port: 8080
+    - matches:
+        - path:
+            type: Exact
+            value: /2026
+      backendRefs:
+        - name: trekktabell-2026
+          port: 8080
