@@ -23,11 +23,10 @@ steps:
       - >-
         docker buildx build
         --platform linux/amd64,linux/arm64
-        --tag packages.buildkite.com/asgeirn/registry/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}
         --tag packages.buildkite.com/asgeirn/registry/trekktabell:latest
         --tag packages.buildkite.com/asgeirn/registry/trekktabell:$$YEAR
         --push .
-      - "buildkite-agent meta-data set image-ref packages.buildkite.com/asgeirn/registry/trekktabell:sha-$${BUILDKITE_COMMIT:0:7}"
+      - "buildkite-agent meta-data set image-ref packages.buildkite.com/asgeirn/registry/trekktabell:sha-$$YEAR"
 
   - label: ":semgrep: Semgrep"
     key: "semgrep"
