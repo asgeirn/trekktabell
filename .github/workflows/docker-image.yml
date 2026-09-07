@@ -23,7 +23,7 @@ jobs:
           YEAR=$(grep -oP '<artifactId>trekkrutine-\K\d{4}' pom.xml)
           echo "year=$YEAR" >> $GITHUB_OUTPUT
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to GHCR
