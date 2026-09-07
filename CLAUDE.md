@@ -98,6 +98,16 @@ Authentication to the registry uses OIDC via `buildkite-agent oidc request-token
 
 ### Dependabot Automation
 
+All GitHub Actions are pinned to full commit SHAs with a trailing `# vX.Y.Z` comment,
+including first-party `actions/*` and `github/*`. Dependabot has no option to convert a
+tag into a SHA pin, so new actions must be pinned by hand; thereafter Dependabot updates
+both the SHA and the comment. The comment format matters — the version must be the last
+thing on the line. Never use a branch ref (`@main`): Dependabot ignores those entirely and
+they get no security alerts.
+
+`.github/dependabot.yml` applies `cooldown` periods so releases age before adoption
+(7 days generally, 30 for Maven majors). Cooldown never delays security updates.
+
 Dependabot PRs are handled by `.github/workflows/dependabot-review-merge.yml`:
 
 1. Requests a review from `copilot-pull-request-reviewer[bot]`.
