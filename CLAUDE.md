@@ -100,12 +100,19 @@ Authentication to the registry uses OIDC via `buildkite-agent oidc request-token
 
 Dependabot PRs are handled by `.github/workflows/dependabot-review-merge.yml`:
 
-1. Requests a review from `copilot-pull-request-reviewer[bot]` (the `Copilot review for
-   default branch` ruleset also requests one automatically, including on new pushes).
-2. Publishes update metadata (versions, update type, maintainer changes, advisory state)
-   to the job summary via `dependabot/fetch-metadata`.
-3. Enables auto-merge (squash) — held back if the diff touches anything outside the
-   dependency manifests, or if Dependabot reports maintainer changes.
+1. Requests a review from `copilot-pull-request-reviewer[bot]`.
+2. Waits for Copilot's verdict, then publishes update metadata (versions, update type,
+   maintainer changes, advisory state) to the job summary via `dependabot/fetch-metadata`.
+3. Enables auto-merge (squash) only when *all* of these hold: Copilot approved with zero
+   inline comments, the diff stays within the dependency manifests, and Dependabot reports
+   no maintainer change. Otherwise it comments on the PR explaining what is being held.
+
+**Requires the `COPILOT_REVIEW_TOKEN` Actions secret** — a fine-grained PAT owned by a
+Copilot-licensed user with `Pull requests: read and write` on this repository. The default
+`GITHUB_TOKEN` does *not* work: the reviewer-request API returns success but the request is
+silently discarded, because a Copilot review must be attributed to a licensed identity. The
+`copilot_code_review` ruleset rule has the same limitation — it never fires on
+`dependabot[bot]`-authored PRs, only on human-authored ones.
 
 Copilot's review is steered by `.github/instructions/dependency-supply-chain.instructions.md`,
 which targets supply chain attack indicators. Copilot reads instruction files from the PR's
