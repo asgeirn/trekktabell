@@ -96,6 +96,27 @@ Buildkite pipeline (`.buildkite/pipeline.yml`) runs:
 
 Authentication to the registry uses OIDC via `buildkite-agent oidc request-token`. Tags pushed: `sha-<short>`, `latest`, and the year extracted from `pom.xml`.
 
+### Dependabot Automation
+
+Dependabot PRs are handled by `.github/workflows/dependabot-review-merge.yml`:
+
+1. Requests a review from `copilot-pull-request-reviewer[bot]` (the `Copilot review for
+   default branch` ruleset also requests one automatically, including on new pushes).
+2. Publishes update metadata (versions, update type, maintainer changes, advisory state)
+   to the job summary via `dependabot/fetch-metadata`.
+3. Enables auto-merge (squash) — held back if the diff touches anything outside the
+   dependency manifests, or if Dependabot reports maintainer changes.
+
+Copilot's review is steered by `.github/instructions/dependency-supply-chain.instructions.md`,
+which targets supply chain attack indicators. Copilot reads instruction files from the PR's
+head branch, so changes to it can be validated in the same PR.
+
+The workflow uses `pull_request_target` because Dependabot-triggered `pull_request` runs get
+a read-only token and no secrets. It must never check out or execute head-branch code.
+
+Auto-merge waits for the `build` and `Analyze (java-kotlin)` checks, which are required by
+the branch ruleset (repository admins bypass it for direct pushes to `master`).
+
 ### Updating Image Digests
 
 Images in `trekktabell.yaml` are pinned to SHA256 digests. After a new image is published, get the manifest list digest from the Buildkite build log:
