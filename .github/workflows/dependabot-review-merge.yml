@@ -161,6 +161,18 @@ jobs:
           gh pr comment "$PR_URL" --body-file body.md
           cat body.md >> "$GITHUB_STEP_SUMMARY"
 
+      # Merging a PR that touches `.github/workflows/**` requires a token with the
+      # workflow scope, which GITHUB_TOKEN never has — so the PAT is used here too.
+      # Most PRs from the github-actions ecosystem touch workflow files.
       - name: Enable auto-merge
         if: steps.decide.outputs.merge == 'true'
-        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          if ! gh pr merge --auto --squash "$PR_URL" 2> merge-error.txt; then
+            cat merge-error.txt
+            if grep -q 'without .workflow' merge-error.txt; then
+              echo "::error::COPILOT_REVIEW_TOKEN is missing the 'Workflows: read and write' permission, which is required to merge pull requests that modify .github/workflows."
+            fi
+            exit 1
+          fi

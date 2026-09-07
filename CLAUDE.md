@@ -108,11 +108,22 @@ Dependabot PRs are handled by `.github/workflows/dependabot-review-merge.yml`:
    no maintainer change. Otherwise it comments on the PR explaining what is being held.
 
 **Requires the `COPILOT_REVIEW_TOKEN` Actions secret** — a fine-grained PAT owned by a
-Copilot-licensed user with `Pull requests: read and write` on this repository. The default
-`GITHUB_TOKEN` does *not* work: the reviewer-request API returns success but the request is
-silently discarded, because a Copilot review must be attributed to a licensed identity. The
-`copilot_code_review` ruleset rule has the same limitation — it never fires on
-`dependabot[bot]`-authored PRs, only on human-authored ones.
+Copilot-licensed user, scoped to this repository with:
+
+| Permission | Access | Why |
+| --- | --- | --- |
+| Pull requests | Read and write | Request the review, comment, enable auto-merge |
+| Contents | Read and write | Perform the merge |
+| Workflows | Read and write | Merge PRs that modify `.github/workflows/**` |
+
+The default `GITHUB_TOKEN` does *not* work for either half of this. Requesting a review with
+it returns success but is silently discarded, because a Copilot review must be attributed to
+a licensed identity. Merging with it fails outright on any PR touching a workflow file
+(`refusing to allow a GitHub App to create or update workflow … without 'workflows'
+permission`), which covers most `github-actions` ecosystem updates.
+
+The `copilot_code_review` ruleset rule has the same attribution limitation — it never fires
+on `dependabot[bot]`-authored PRs, only on human-authored ones.
 
 Copilot's review is steered by `.github/instructions/dependency-supply-chain.instructions.md`,
 which targets supply chain attack indicators. Copilot reads instruction files from the PR's
