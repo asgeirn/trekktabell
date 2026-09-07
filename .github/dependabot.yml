@@ -2,6 +2,18 @@
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+#
+# Actions are pinned to full commit SHAs in .github/workflows. Dependabot has no option
+# to convert a tag ref into a SHA pin, so the initial pinning is done by hand; once an
+# action is written as `owner/repo@<40-char-sha> # vX.Y.Z`, Dependabot maintains both the
+# SHA and the trailing version comment. Keep that comment format exact — the version must
+# be the last thing on the line, or Dependabot leaves the comment stale. Never pin an
+# action to a branch (`@main`): Dependabot ignores such refs entirely and they receive no
+# security alerts.
+#
+# The cooldown periods below let a release age before we adopt it; malicious releases are
+# typically yanked within hours or days of publication. Cooldown applies to version
+# updates only, never to security updates.
 
 version: 2
 updates:
@@ -9,13 +21,26 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # github-actions supports default-days only, not the per-semver-bump variants.
+    cooldown:
+      default-days: 7
+    labels:
+      - "dependencies"
+      - "github-actions"
+
   - package-ecosystem: "maven" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
+
   - package-ecosystem: "docker" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
-
-# Trigger a Dependabot run on change.
+    cooldown:
+      default-days: 7

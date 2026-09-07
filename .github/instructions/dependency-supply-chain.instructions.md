@@ -33,14 +33,20 @@ Flag and explain any of the following. Prefer a false positive over a silent mis
 ### 3. Version and integrity pinning
 
 - An immutable pin is replaced by a mutable reference:
-  - GitHub Actions: full commit SHA replaced by a tag or branch (`@v4`, `@main`).
-    Actions in `.github/workflows/**` that are already SHA-pinned must stay SHA-pinned,
-    and third-party actions (anything outside `actions/`, `docker/`, `github/`) should be
-    SHA-pinned.
+  - GitHub Actions: **every** `uses:` in `.github/workflows/**` must be pinned to a
+    full 40-character commit SHA with a trailing version comment, including first-party
+    `actions/*` and `github/*` actions. Flag any tag (`@v4`), branch (`@main`), or
+    abbreviated SHA. A branch ref is especially serious: Dependabot never updates it and
+    it receives no security alerts, so it silently tracks whatever upstream pushes.
   - Docker: `image@sha256:...` digest replaced by a floating tag such as `latest`.
     `Dockerfile` and `trekktabell.yaml` images are expected to stay digest-pinned.
   - Maven: fixed version replaced by a range, `LATEST`, `RELEASE`, or a `-SNAPSHOT`.
+- The trailing version comment on a pinned action does not match the SHA, or the SHA
+  moved while the comment stayed the same — treat a mismatch as suspicious rather than
+  cosmetic, since it is what a malicious retag looks like.
 - A checksum, digest, or lock entry changed without a corresponding version change.
+- `cooldown` periods are removed or shortened in `.github/dependabot.yml`, or an
+  ecosystem is reconfigured to adopt releases immediately.
 
 ### 4. Blast radius of the change
 
