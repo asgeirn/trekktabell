@@ -43,7 +43,7 @@ jobs:
             type=raw,value=${{ steps.extract_year.outputs.year }}
       - name: Build and push Docker images
         id: image
-        uses: docker/build-push-action@v6.18.0
+        uses: docker/build-push-action@v7.3.0
         with:
           platforms: linux/amd64,linux/arm64
           pull: false
