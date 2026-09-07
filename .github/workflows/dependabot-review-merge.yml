@@ -1,0 +1,91 @@
+name: Dependabot review and merge
+
+# Runs on pull_request_target because Dependabot-triggered `pull_request` runs get a
+# read-only GITHUB_TOKEN and no secrets. Nothing from the head branch is checked out or
+# executed here — only the GitHub API is used.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'asgeirn/trekktabell'
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          alert-lookup: true
+          compat-lookup: true
+
+      - name: Request Copilot code review
+        continue-on-error: true
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/requested_reviewers" \
+            -f 'reviewers[]=copilot-pull-request-reviewer[bot]'
+
+      - name: Check that the diff only touches dependency manifests
+        id: scope
+        run: |
+          files=$(gh pr view "$PR_URL" --json files --jq '.files[].path')
+          echo "$files"
+          unexpected=$(printf '%s\n' "$files" | grep -Ev '^(pom\.xml|Dockerfile|\.github/workflows/[^/]+\.ya?ml|\.github/dependabot\.yml|devbox\.(json|lock)|trekktabell\.yaml)$' || true)
+          if [ -n "$unexpected" ]; then
+            {
+              echo "### Dependabot PR touches unexpected files"
+              echo
+              echo "Auto-merge is disabled for this pull request. Review manually:"
+              printf '%s\n' "$unexpected" | sed 's/^/- `/; s/$/`/'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "safe=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "safe=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Summary
+        run: |
+          {
+            echo "### Dependabot update"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Dependencies | ${{ steps.metadata.outputs.dependency-names }} |"
+            echo "| Ecosystem | ${{ steps.metadata.outputs.package-ecosystem }} |"
+            echo "| Update type | ${{ steps.metadata.outputs.update-type }} |"
+            echo "| Dependency type | ${{ steps.metadata.outputs.dependency-type }} |"
+            echo "| Previous version | ${{ steps.metadata.outputs.previous-version }} |"
+            echo "| New version | ${{ steps.metadata.outputs.new-version }} |"
+            echo "| Maintainer changes | ${{ steps.metadata.outputs.maintainer-changes }} |"
+            echo "| Security alert | ${{ steps.metadata.outputs.alert-state }} ${{ steps.metadata.outputs.ghsa-id }} |"
+            echo "| Compatibility score | ${{ steps.metadata.outputs.compatibility-score }} |"
+            echo "| Diff scope OK | ${{ steps.scope.outputs.safe }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Auto-merge is held back on the two strongest supply chain signals available
+      # without inspecting the upstream artifact: an unexpected diff, or a change of
+      # package maintainers between the two versions.
+      - name: Hold auto-merge (maintainer changes)
+        if: steps.metadata.outputs.maintainer-changes == 'true'
+        run: |
+          echo "Maintainers changed between versions - holding auto-merge." >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "$PR_URL" --body \
+            ":warning: Dependabot reports **maintainer changes** for this update. Auto-merge is held; a human must review the provenance of the new release before merging."
+
+      - name: Enable auto-merge
+        if: steps.scope.outputs.safe == 'true' && steps.metadata.outputs.maintainer-changes != 'true'
+        run: gh pr merge --auto --squash "$PR_URL"
