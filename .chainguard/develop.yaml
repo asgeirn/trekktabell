@@ -1,6 +1,2 @@
 version: 1
-from: .chainguard/ci/migrated.yaml
-environment:
-  packages: [openjdk-17, maven]
-  vars:
-    JAVA_HOME: /usr/lib/jvm/java-17-openjdk/
+from: .chainguard/ci/maven.yaml
