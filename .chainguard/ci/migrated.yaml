@@ -10,11 +10,10 @@ checks:
       packages:
       - openjdk-17
       - maven
+      vars:
+       JAVA_HOME: /usr/lib/jvm/java-17-openjdk/
     steps:
     - cmd:
-      - sh
-      - -e
-      - -c
       - mvn -B package --file pom.xml
       name: Build with Maven
   # migrator: if (github.event.pull_request.user.login == 'dependabot[bot]'...): the schema has no job gate; job carried unconditionally
@@ -131,4 +130,3 @@ checks:
         echo "merge=$ok" >> "$GITHUB_OUTPUT"
       id: decide
       name: Decide
-
