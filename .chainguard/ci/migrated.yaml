@@ -12,6 +12,8 @@ checks:
       - maven
       vars:
        JAVA_HOME: /usr/lib/jvm/java-17-openjdk/
+    network:
+      egress: [repo.maven.apache.org]
     steps:
     - cmd: mvn -B package --file pom.xml
       name: Build with Maven
