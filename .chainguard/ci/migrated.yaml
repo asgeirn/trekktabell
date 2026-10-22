@@ -9,6 +9,7 @@ checks:
     environment:
       packages:
       - openjdk-17
+      - maven
     steps:
     - cmd:
       - sh
